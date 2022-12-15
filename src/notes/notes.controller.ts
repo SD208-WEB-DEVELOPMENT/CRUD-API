@@ -1,0 +1,60 @@
+/* eslint-disable prettier/prettier */
+import {
+    Controller,
+    Post,
+    Body,
+    Get,
+    Param,
+    Patch,
+    Delete,
+
+} from '@nestjs/common';
+
+
+import { Note } from './notes.model';
+
+import { NotesService } from './notes.service';
+
+@Controller('notes')
+export class NotesController {
+    constructor(private readonly notesService: NotesService) { }
+
+    @Post('create')
+
+    
+    addNote(
+        @Body('note_title') noteTitle: string,
+        @Body('description') noteDesc: string,
+    ) {
+        const generatedId = this.notesService.addNote(
+            noteTitle,
+        );
+        return { id: generatedId, title: noteTitle, description: noteDesc};
+    }
+
+    @Get()
+    getAllNotes() {
+        return this.notesService.getNotes();
+    }
+
+    @Get(':id')
+    getProduct(@Param('id') noteId: string) {
+        return this.notesService.getSingleNote(noteId);
+    }
+
+    @Patch(':id')
+    updateNote(
+        @Param('id') noteId: string,
+        @Body('note_title') noteTitle: string,
+        @Body('description') noteDesc: string,
+    ) {
+        this.notesService.updateNote(noteId, noteTitle, noteDesc);
+        return null;
+    }
+
+    @Delete(':id')
+    removeNote(@Param('id') noteId: string) {
+        this.notesService.deleteNote(noteId);
+        return null;
+    }
+}
