@@ -2,7 +2,8 @@
 import { Injectable, NotFoundException} from "@nestjs/common";
 import { CreateNotesDto } from "./dto/createnotes.dto";
 import {v4 as uuidv4} from 'uuid';
-import { Note } from './notes.model';
+import { Note, NoteStatus } from './notes.model';
+import { GetNotesFilterDto } from "./dto/get-notes-filter.dto";
 
 @Injectable()
 export class NotesService {
@@ -19,13 +20,25 @@ export class NotesService {
             id: uuidv4(),
             note_title,
             description,
+            status: NoteStatus.OPEN
         }
         this.notes.push(newNotes);
         return newNotes 
     }
 
-    getNotes() {
-        return [...this.notes];
+    getNotes(filterDto: GetNotesFilterDto): Note[] {
+        const {search, status} = filterDto;
+        let note = this.notes;
+
+        if (status){
+            this.notes = this.notes.filter(x => x.status === status);
+        }
+
+        if (search){
+            this.notes = this.notes.filter(x => x.note_title.includes(search) || x.description.includes(search))
+        }
+
+        return this.notes;
     }
 
     getSingleNote(noteId: string) {
@@ -33,14 +46,14 @@ export class NotesService {
         return { ...note };
     }
 
-    updateNote(noteId: string, title: string, desc: string) {
+    updateNote(noteId: string, title: string, status: NoteStatus) {
         const [note, index] = this.findNote(noteId);
         const updatedNote = { ...note };
         if (title) {
             updatedNote.note_title = title;
         }
-        if (desc) {
-            updatedNote.description = desc;
+        if (status) {
+            updatedNote.status = status;
         }
         this.notes[index] = updatedNote;
     }

@@ -10,9 +10,13 @@ import {
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
+import { Query } from '@nestjs/common/decorators/http/route-params.decorator';
+import { NoteStatusValidationPipe } from 'src/pipes/notes-status-validation-filter.pipe';
+
 
 import { CreateNotesDto } from './dto/createnotes.dto';
-import { Note } from './notes.model';
+import { GetNotesFilterDto } from './dto/get-notes-filter.dto';
+import { Note, NoteStatus } from './notes.model';
 
 import { NotesService } from './notes.service';
 
@@ -39,8 +43,8 @@ export class NotesController {
     // }
 
     @Get()
-    getAllNotes() {
-        return this.notesService.getNotes();
+    getAllNotes(@Query(ValidationPipe)filterDto: GetNotesFilterDto) {
+        return this.notesService.getNotes(filterDto );
     }
 
     @Get(':id')
@@ -51,10 +55,10 @@ export class NotesController {
     @Patch(':id')
     updateNote(
         @Param('id') noteId: string,
-        @Body('note_title') noteTitle: string,
-        @Body('description') noteDesc: string,
+        @Body('title') noteTitle: string,
+        @Body('status', NoteStatusValidationPipe) status: NoteStatus,
     ) {
-        this.notesService.updateNote(noteId, noteTitle, noteDesc);
+        this.notesService.updateNote(noteId, noteTitle, status);
         return null;
     }
 
