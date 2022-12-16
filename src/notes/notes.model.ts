@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-export interface Note {
+export interface Notes {
   
      id: string,
      note_title: string,
